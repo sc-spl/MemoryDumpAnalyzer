@@ -16,7 +16,7 @@ param
 
 function RunCommandAndSaveOutput([string] $pathToDump, [string] $command, [string] $pathToOutputFile)
 {
-    $wrappedCommand = "`".load $pathToSOS;.load $pathToSOSEX;.load $pathToNetExt;.logopen $pathToOutputFile;$command;.logclose;q`"";
+    $wrappedCommand = "`".load $pathToSOS;.load $pathToSOSEX;.load $pathToNetExt;!symfix;.reload;.logopen $pathToOutputFile;$command;.logclose;q`"";
 
     if($runInParallel -eq $true)
     {
