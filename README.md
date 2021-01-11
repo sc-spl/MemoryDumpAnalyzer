@@ -5,7 +5,7 @@ Powershell script for running most common windbg commands against memory dump fi
 
 Requires CDB installed. Can be downloaded from here: https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/
 
-Expects that you have SOSEX and NetExt, however having them is not mandatory if you disable command files which utilize the extensions.
+Expects that you have SOSEX and NetExt.
 
 ## How it works
 
@@ -14,11 +14,20 @@ The script takes commands from *Commands* folder and executes them one by one ag
 Example of the command file content (wda.txt):
 
 ```
-!windex;
 !wdae
 ```
 
-SOS, SOSEX and NetExt are loaded by default, so you don't need to worry about it. However, SOSEX and NetExt indexes are not built by default to make the execution faster.
+SOS, SOSEX and NetExt are loaded by default, so you don't need to worry about it. Also, NetExt index is built and saved to the same folder as memory dump. 
+
+```
+Note 1: SOSEX index is not built by default since there are no out of the box commands which utilize it.
+```
+
+```
+Note 2: Output folder is cleared by default. Use clearOutputFolder parameter if the behavior is not desired.
+```
+
+
 
 ## Usage examples
 

@@ -10,15 +10,15 @@ param
     [string] $pathToSOS = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\sos.dll",
     [string] $pathToSOSEX = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\sosex.dll",
     [string] $pathToNetExt = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\netext.dll",
-    [bool] $clearOutputFolder = $true,
+    [bool]   $clearOutputFolder = $true,
     [switch] $runInParallel = $false
 )
 
-function RunCommandAndSaveOutput([string] $pathToDump, [string] $command, [string] $pathToOutputFile)
+function RunCommandAndSaveOutput([string] $pathToDump, [string] $command, [string] $pathToOutputFile, [string] $pathToNetExtIndex, [bool] $runInBackground)
 {
-    $wrappedCommand = "`".load $pathToSOS;.load $pathToSOSEX;.load $pathToNetExt;!symfix;.reload;.logopen $pathToOutputFile;$command;.logclose;q`"";
+    $wrappedCommand = "`".load $pathToSOS;.load $pathToSOSEX;.load $pathToNetExt;!symfix;.reload;!windex /load $pathToNetExtIndex;.logopen $pathToOutputFile;$command;.logclose;q`"";
 
-    if($runInParallel -eq $true)
+    if($runInBackground -eq $true)
     {
         $arguments = @("-z", $pathToDump, "-y", $pathToSymbols, "-c", $wrappedCommand)
         Start-Process -WindowStyle hidden -FilePath $pathToCDB -ArgumentList $arguments
@@ -31,6 +31,11 @@ function RunCommandAndSaveOutput([string] $pathToDump, [string] $command, [strin
 
 function RunCommandsFromFolder([string] $pathToDump, [string] $commandsFolderName, [string] $outputFolderName)
 {
+    #create NetExt index
+    $pathToNetExtIndex = $pathToDump + ".idx"
+    RunCommandAndSaveOutput -pathToDump $pathToDump -command "!windex /save $pathToNetExtIndex" -runInBackground $false
+
+    #create output folder
     if ($clearOutputFolder -eq $true)
     { 
         Remove-Item -Path $outputFolderName -Force -Recurse -ErrorAction Ignore
@@ -38,6 +43,7 @@ function RunCommandsFromFolder([string] $pathToDump, [string] $commandsFolderNam
 
     New-Item -ItemType directory -Path $outputFolderName -ErrorAction Ignore
 
+    #executing commands
     $commandFiles = Get-ChildItem $commandsFolderName"\*.txt" | Select-Object
 
     foreach ($file in $commandFiles)
@@ -45,7 +51,7 @@ function RunCommandsFromFolder([string] $pathToDump, [string] $commandsFolderNam
         $commandContent = Get-Content $file.FullName
         $outputFile = $outputFolderName + "\output-" + $file.Name
 
-        RunCommandAndSaveOutput -pathToDump $pathToDump -command $commandContent -pathToOutputFile $outputFile
+        RunCommandAndSaveOutput -pathToDump $pathToDump -command $commandContent -pathToOutputFile $outputFile -pathToNetExtIndex $pathToNetExtIndex -runInBackground $runInParallel.IsPresent
     }
 }
 
