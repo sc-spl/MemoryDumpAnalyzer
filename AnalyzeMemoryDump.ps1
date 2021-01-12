@@ -16,6 +16,8 @@ param
 
 function RunCommandAndSaveOutput([string] $pathToDump, [string] $command, [string] $pathToOutputFile, [string] $pathToNetExtIndex, [bool] $runInBackground)
 {
+    $command = $ExecutionContext.InvokeCommand.ExpandString($command)
+
     $wrappedCommand = "`".load $pathToSOS;.load $pathToSOSEX;.load $pathToNetExt;!symfix;.reload;!windex /load $pathToNetExtIndex;.logopen $pathToOutputFile;$command;.logclose;q`"";
 
     if($runInBackground -eq $true)
