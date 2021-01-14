@@ -41,6 +41,8 @@ function ReplaceKnownVariables([string] $command)
 
 function RunCommandsFromFolder([string] $pathToDump, [string] $commandsFolderName, [string] $outputFolderName)
 {
+    $outputFolderName = (Resolve-Path -Path $outputFolderName).Path
+
     #create NetExt index
     $pathToNetExtIndex = $pathToDump + ".idx"
 	RunCommandAndSaveOutput -pathToDump $pathToDump -command "!windex /save $pathToNetExtIndex" -runInBackground $false
