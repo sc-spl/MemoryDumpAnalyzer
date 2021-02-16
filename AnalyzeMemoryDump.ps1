@@ -16,14 +16,14 @@ param
 
 function RunCommandAndSaveOutput([string] $pathToDump, [string] $command, [string] $pathToOutputFile, [string] $pathToNetExtIndex, [bool] $runInBackground)
 {
-    $command = $ExecutionContext.InvokeCommand.ExpandString($command)
+    $command = ReplaceKnownVariables -command $command
 
     $wrappedCommand = "`".load $pathToSOS;.load $pathToSOSEX;.load $pathToNetExt;!symfix;.reload;!windex /load $pathToNetExtIndex;.logopen $pathToOutputFile;$command;.logclose;q`"";
 
     if($runInBackground -eq $true)
     {
         $arguments = @("-z", $pathToDump, "-y", $pathToSymbols, "-c", $wrappedCommand)
-        Start-Process -WindowStyle hidden -FilePath $pathToCDB -ArgumentList $arguments
+        Start-Process -WindowStyle hidden -FilePath $pathToCDB -ArgumentList $arguments;    
     }
     else
     {
@@ -31,11 +31,19 @@ function RunCommandAndSaveOutput([string] $pathToDump, [string] $command, [strin
     }
 }
 
+function ReplaceKnownVariables([string] $command)
+{
+    $command = $command.Replace('$pathToDumpFile', $pathToDumpFile);
+    $command = $command.Replace('$commandsFolderName', $commandsFolderName);
+    $command = $command.Replace('$outputFolderName', $outputFolderName);
+    return $command;
+}
+
 function RunCommandsFromFolder([string] $pathToDump, [string] $commandsFolderName, [string] $outputFolderName)
 {
     #create NetExt index
     $pathToNetExtIndex = $pathToDump + ".idx"
-    RunCommandAndSaveOutput -pathToDump $pathToDump -command "!windex /save $pathToNetExtIndex" -runInBackground $false
+	RunCommandAndSaveOutput -pathToDump $pathToDump -command "!windex /save $pathToNetExtIndex" -runInBackground $false
 
     #create output folder
     if ($clearOutputFolder -eq $true)
@@ -45,9 +53,11 @@ function RunCommandsFromFolder([string] $pathToDump, [string] $commandsFolderNam
 
     New-Item -ItemType directory -Path $outputFolderName -ErrorAction Ignore
 
+    $outputFolderName = (Resolve-Path -Path $outputFolderName).Path
+
     #executing commands
     $commandFiles = Get-ChildItem $commandsFolderName"\*.txt" | Select-Object
-
+	
     foreach ($file in $commandFiles)
     {
         $commandContent = Get-Content $file.FullName
