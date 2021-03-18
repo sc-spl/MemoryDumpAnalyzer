@@ -65,3 +65,31 @@ There are also the following parameters which define the locations of the files 
 -pathToNetExt "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\netext.dll"
 ```
 
+
+
+## Context handlers
+
+To add context menu handler for .dmp files:
+
+1. Edit *AddContextMenuHandler.reg* file using notepad and modify the path to the *ContextMenuRun.bat* file:
+
+   ```powershell
+   [HKEY_CLASSES_ROOT\*\shell\Analyze.Memory.Dump\command]
+   @="C:\\Code\\MemoryDumpAnalyzer\\ContextMenuRun.bat \"%1\""
+   ```
+
+2. Edit *ContextMenuRun.bat* to use your path to commands folder and AnalyzeMemoryDump.ps1 file: 
+
+   ```powershell
+   powershell -ExecutionPolicy RemoteSigned -Command "C:\Code\MemoryDumpAnalyzer\AnalyzeMemoryDump.ps1 -commandsFolderName C:\Code\MemoryDumpAnalyzer\Commands -pathToDumpFile %1 -outputFolderName %outputFolder% -runInParallel"
+   ```
+
+3. To be sure that nothing is accidentally removed, set the *clearOutputFolder* parameter to false in the AnalyzeMemoryDump.ps1 file:
+
+   ```powershell
+   [bool]   $clearOutputFolder = $false,
+   ```
+
+   You can change the value later when you are sure that everything works as expected.
+
+4. Run *AddContextMenuHandler.reg* file. The *Launch Memory Dump Analyzer...* option should be added to the context menu of the .dmp files.
