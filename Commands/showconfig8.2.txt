@@ -1,0 +1,1 @@
+.foreach /pS 3E /ps 100 ( configReader {.foreach /pS 9 /ps 100 (eeclass { !name2ee Sitecore.Kernel.dll Sitecore.Configuration.ConfigReader  }) { !dumpclass ${eeclass} }} ) { !wxml ${configReader} }
