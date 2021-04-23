@@ -1,0 +1,1 @@
+.echo Active; dd webengine4!g_lActiveRequests l1; .echo Max; dd webengine4!W3_MGD_REQUEST_QUEUE::sm_lMaxActiveRequests l1; .echo Queue; dd webengine4!W3_MGD_REQUEST_QUEUE::sm_EntryCount l1
