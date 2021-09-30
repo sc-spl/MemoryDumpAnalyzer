@@ -78,12 +78,6 @@ To add context menu handler for .dmp files:
    @="C:\\Code\\MemoryDumpAnalyzer\\ContextMenuRun.bat \"%1\""
    ```
 
-2. Edit *ContextMenuRun.bat* to use your path to commands folder and AnalyzeMemoryDump.ps1 file: 
-
-   ```powershell
-   powershell -ExecutionPolicy RemoteSigned -Command "C:\Code\MemoryDumpAnalyzer\AnalyzeMemoryDump.ps1 -commandsFolderName C:\Code\MemoryDumpAnalyzer\Commands -pathToDumpFile %1 -outputFolderName %outputFolder% -runInParallel"
-   ```
-
 3. To be sure that nothing is accidentally removed, set the *clearOutputFolder* parameter to false in the AnalyzeMemoryDump.ps1 file:
 
    ```powershell
